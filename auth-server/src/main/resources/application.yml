@@ -1,0 +1,50 @@
+server:
+  port: 10001
+
+spring:
+  application:
+    name: authentication-server
+
+  output:
+    ansi:
+      enabled: always
+
+  redis:
+    host: localhost
+    port: 6379
+    password: admin123!
+  profiles:
+    active: local
+
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    initialization-mode: always
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+jwt:
+  header: Authorization
+  #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
+  #echo 'roopy-spring-boot-security-jwt-with-jpa-and-redis-roopy-spring-boot-security-jwt-with-jpa-and-redis'|base64
+  #base64 encode/decode url: https://www.base64encode.org/
+  secret: cm9vcHktc3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXdpdGgtanBhLWFuZC1yZWRpcy1yb29weS1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3Qtd2l0aC1qcGEtYW5kLXJlZGlz
+  access-token-cookie-name: accessTokenCookie
+  refresh-token-cookie-name: refreshTokenCookie
+
+logging:
+  level:
+    com.roopy: DEBUG

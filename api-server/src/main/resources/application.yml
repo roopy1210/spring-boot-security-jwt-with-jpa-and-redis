@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: api-server
+
+  output:
+    ansi:
+      enabled: always
+
+jwt:
+  #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
+  #echo 'roopy-spring-boot-security-jwt-with-jpa-and-redis-roopy-spring-boot-security-jwt-with-jpa-and-redis'|base64
+  #base64 encode/decode url: https://www.base64encode.org/
+  secret: cm9vcHktc3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXdpdGgtanBhLWFuZC1yZWRpcy1yb29weS1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3Qtd2l0aC1qcGEtYW5kLXJlZGlz
+  access-token-cookie-name: accessTokenCookie
+  refresh-token-cookie-name: refreshTokenCookie
+
+logging:
+  level:
+    com.roopy: DEBUG
+
