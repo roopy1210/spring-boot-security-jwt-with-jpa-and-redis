@@ -136,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
             // 토큰 사용자 정보 조회
             Authentication authentication = tokenProvider.getAuthentication(accessToken);
 
-            // 최근 RefreshToken 조회
+            // Expired RefreshToken 조회
             String expiredRefreshTokenId = AES256Cipher.decrypt(userRepository.findOneWithAuthoritiesByUsername(authentication.getName()).get().getToken());
             logger.debug("기존 RefreshToken({})", expiredRefreshTokenId);
             
