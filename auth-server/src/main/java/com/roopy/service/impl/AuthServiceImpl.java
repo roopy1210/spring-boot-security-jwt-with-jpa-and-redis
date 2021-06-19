@@ -136,11 +136,12 @@ public class AuthServiceImpl implements AuthService {
             // 토큰 사용자 정보 조회
             Authentication authentication = tokenProvider.getAuthentication(accessToken);
 
-            // Expired RefreshToken 조회
+            // Expired RefreshToken ID 조회
+            // Cookie 정보가 삭제 되기 때문에 쿠키에선느 토큰 정보를 알수 없기 때문에 사용자 정보에서 RefreshToken 정보를 조회 한다.
             String expiredRefreshTokenId = AES256Cipher.decrypt(userRepository.findOneWithAuthoritiesByUsername(authentication.getName()).get().getToken());
             logger.debug("Expired RefreshToken({})", expiredRefreshTokenId);
             
-            // RefreshToken 조회
+            // Expired RefreshToken 조회
             Optional<RefreshToken> refreshToken = refreshTokenRepository.findById(expiredRefreshTokenId);
 
             // refreshToken 발급
@@ -159,7 +160,7 @@ public class AuthServiceImpl implements AuthService {
 
             refreshTokenResponse = refreshTokenRepository.save(refreshTokenRequest);
 
-            // 재발급 RefreshTokenId 사용자 정보 업데이트
+            // 재발급 RefreshTokenId 업데이트
             Optional<User> user =  userRepository.findOneWithAuthoritiesByUsername(authentication.getName());
             user.get().setToken(AES256Cipher.encrypt(refreshTokenResponse.getId()));
             userRepository.save(user.get());
