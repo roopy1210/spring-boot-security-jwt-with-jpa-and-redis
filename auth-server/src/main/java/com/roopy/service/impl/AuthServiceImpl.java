@@ -137,11 +137,11 @@ public class AuthServiceImpl implements AuthService {
             Authentication authentication = tokenProvider.getAuthentication(accessToken);
 
             // 최근 RefreshToken 조회
-            String latestRefreshTokenId = AES256Cipher.decrypt(userRepository.findOneWithAuthoritiesByUsername(authentication.getName()).get().getToken());
-            logger.debug("기존 RefreshToken({})", latestRefreshTokenId);
+            String expiredRefreshTokenId = AES256Cipher.decrypt(userRepository.findOneWithAuthoritiesByUsername(authentication.getName()).get().getToken());
+            logger.debug("기존 RefreshToken({})", expiredRefreshTokenId);
             
             // RefreshToken 조회
-            Optional<RefreshToken> refreshToken = refreshTokenRepository.findById(latestRefreshTokenId);
+            Optional<RefreshToken> refreshToken = refreshTokenRepository.findById(expiredRefreshTokenId);
 
             // refreshToken 발급
             Calendar c = Calendar.getInstance();
@@ -165,8 +165,8 @@ public class AuthServiceImpl implements AuthService {
             userRepository.save(user.get());
 
             // RefreshToken 재발급이 완료 된 경우 기존키는 삭제 처리한다.
-            refreshTokenRepository.deleteById(latestRefreshTokenId);
-            logger.debug("기존 RefreshToken({}) 삭제 처리 되었습니다.", latestRefreshTokenId);
+            refreshTokenRepository.deleteById(expiredRefreshTokenId);
+            logger.debug("Expired RefreshToken({}) 삭제 처리 되었습니다.", expiredRefreshTokenId);
 
             logger.debug("RefreshToken({}) 이 정상적으로 재발급 되었습니다.", refreshTokenResponse.getId());
         } else {
