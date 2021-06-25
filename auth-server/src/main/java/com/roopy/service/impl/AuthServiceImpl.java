@@ -17,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -218,5 +219,23 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return isValidate;
+    }
+
+    @Override
+    public void deleteTokenFromUsername(String username) {
+        // 사용자정보 조회
+        Optional<User> user = Optional.ofNullable(userRepository.findOneWithAuthoritiesByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자정보가 존재하지 않습니다.")));
+
+        // 만료 RefreshToken
+        String expireRefreshToken = AES256Cipher.decrypt(user.get().getToken());
+
+        // h2db 토큰 정보 업데이트
+        user.get().setToken("");
+        userRepository.save(user.get());
+
+        // Redis 토큰 정보 삭제
+        refreshTokenRepository.deleteById(expireRefreshToken);
+
     }
 }

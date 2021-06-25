@@ -8,6 +8,7 @@ import com.roopy.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,6 +78,13 @@ public class TokenController {
     @PostMapping("/validate/refresh-token")
     public ResponseEntity<Boolean> validateRefreshToken(@RequestBody String refreshToken) throws Exception {
         return new ResponseEntity<>(authService.validateRefreshToken(AES256Cipher.decrypt(refreshToken)), HttpStatus.OK);
+    }
+
+    @PostMapping("/remove/refresh-token")
+    public ResponseEntity<String> removeRefreshToken(@RequestBody String username) throws UsernameNotFoundException {
+        authService.deleteTokenFromUsername(AES256Cipher.decrypt(username));
+
+        return  new ResponseEntity<>("토큰 정보가 정상적으로 삭제 되었습니다.", HttpStatus.OK);
     }
 }
 

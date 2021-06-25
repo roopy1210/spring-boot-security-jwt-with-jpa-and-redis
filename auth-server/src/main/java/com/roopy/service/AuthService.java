@@ -3,7 +3,6 @@ package com.roopy.service;
 import com.roopy.security.jwt.payload.request.LoginRequest;
 import com.roopy.security.jwt.payload.response.TokenResponse;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticationException;
 
 /**
  * 토큰 관리 및 사용자 인증 관리를 위한 인터페이스
@@ -57,4 +56,11 @@ public interface AuthService {
      * @return set true of false
      */
     public boolean validateRefreshToken(String refreshToken);
+
+    /**
+     * 토큰 만료시 h2db, Redis에 저장된 토큰 정보 삭제 처리
+     * 
+     * @param username 로그인 사용자
+     */
+    public void deleteTokenFromUsername(String username);
 }

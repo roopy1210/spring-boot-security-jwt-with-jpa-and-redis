@@ -32,6 +32,9 @@ public class JwtFilter extends OncePerRequestFilter {
     // Filter 클래스가 두번 호출 되는 것을 방지하기 위한 변수
     private static final String FILTER_APPLIED = "JwtFilterApplied";
 
+    // User 쿠키명
+    private String USER_COOKIE_NAME = "userCookie";
+
     // AccessToken 쿠키명
     private String ACCESS_TOKEN_COOKIE_NAME = "accessTokenCookie";
 
@@ -80,6 +83,7 @@ public class JwtFilter extends OncePerRequestFilter {
         boolean isValidRefreshToken = false;
 
         // 쿠키 조회
+        final Cookie userCookie = cookieUtil.getCookie(httpServletRequest, USER_COOKIE_NAME);
         final Cookie accessTokenCookie = cookieUtil.getCookie(httpServletRequest, ACCESS_TOKEN_COOKIE_NAME);
         final Cookie refreshTokenCookie = cookieUtil.getCookie(httpServletRequest, REFRESH_TOKEN_COOKIE_NAME);
 
@@ -104,7 +108,11 @@ public class JwtFilter extends OncePerRequestFilter {
             logger.debug("RefreshToken({}) 유효성 체크", refreshToken);
             isValidRefreshToken = validateRefreshToken(refreshTokenCookie.getValue());
         }
-        logger.debug("isValidAccessToken({}), isValidRefreshToken({})", isValidAccessToken, isValidRefreshToken);
+        logger.debug("======================================================================================================================");
+        logger.debug("토큰 유효성 체[크");
+        logger.debug("======================================================================================================================");
+        logger.debug("isValidAccessToken({}), isValidRefreshToken({}), uri({})", isValidAccessToken, isValidRefreshToken, requestURI);
+        logger.debug("======================================================================================================================");
 
         /******************************************************************************************************************************/
 
@@ -120,16 +128,27 @@ public class JwtFilter extends OncePerRequestFilter {
          * 4. isValidAccessToken(true), isValidRefreshToken(true)                                                                     *
          *    - 사용자 Request 수행                                                                                                   *
          ******************************************************************************************************************************/
+        // 토큰정보가 없고 사용자 쿠키만 존재하고 로그 아웃이 아닌경우 토큰 정보 삭제 처리
+        if (!isValidAccessToken && !isValidRefreshToken && userCookie != null && !requestURI.equals("/signout")) {
+            // 토큰 정보 삭제
+            deleteToken(userCookie.getValue());
+
+            // 사용자 쿠키 정보 삭제
+            CookieUtil cookieUtil = new CookieUtil();
+            cookieUtil.expireCookie(USER_COOKIE_NAME);
+        }
+
         // AccessToken 재발급인 경우
         if (!isValidAccessToken && isValidRefreshToken) {
-            logger.debug("=======================================================================");
-            logger.debug("AccessToken 재발급인 경우");
-            logger.debug("=======================================================================");
+            logger.debug("======================================================================================================================");
+            logger.debug("AccessToken 재발급인 경우 : isValidAccessToken(false), isValidRefreshToken(true)");
+            logger.debug("======================================================================================================================");
             logger.debug("RefreshToken({})", refreshToken);
 
             // AccessToken 재발급
             accessToken = reIssueAccessToken(refreshToken);
             logger.debug("AccessToken({})", accessToken);
+            logger.debug("======================================================================================================================");
 
             // 쿠키 생성
             CookieUtil cookieUtil = new CookieUtil();
@@ -137,24 +156,23 @@ public class JwtFilter extends OncePerRequestFilter {
 
             // 재발급 AccessToken 유효성 체크
             isValidAccessToken = validateAccessToken(accessToken);
-            logger.debug("=======================================================================");
         }
 
         // RefreshToken 재발급인 경우
         if (isValidAccessToken && !isValidRefreshToken) {
-            logger.debug("=======================================================================");
-            logger.debug("RefreshToken 재발급인 경우");
-            logger.debug("=======================================================================");
+            logger.debug("======================================================================================================================");
+            logger.debug("RefreshToken 재발급인 경우 : isValidAccessToken(true), isValidRefreshToken(false)");
+            logger.debug("======================================================================================================================");
             logger.debug("AccessToken({})", accessToken);
 
             // RefreshToken 재발급
             refreshToken = reIssueRefreshToken(accessToken);
             logger.debug("RefreshToken({})", AES256Cipher.encrypt(refreshToken));
+            logger.debug("======================================================================================================================");
 
             // RefreshToken 쿠키 생성
             CookieUtil refreshTokenCookieUtil = new CookieUtil();
             httpServletResponse.addCookie(cookieUtil.createCookie(REFRESH_TOKEN_COOKIE_NAME, AES256Cipher.encrypt(refreshToken), "R"));
-            logger.debug("=======================================================================");
         }
 
         // AccessToken 이 유효한 경우 SecurityContextHolder 에 사용자 정보 설정
@@ -241,5 +259,22 @@ public class JwtFilter extends OncePerRequestFilter {
         refreshToken = responseEntity.getBody();
 
         return refreshToken;
+    }
+
+    /**
+     * Token 삭제
+     *
+     * @param username 로그인 사용자ID
+     */
+    private void deleteToken(String username) {
+        String refreshToken = null;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>(username, headers);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity( "http://localhost:10001/token/remove/refresh-token", request , String.class);
+
+        refreshToken = responseEntity.getBody();
     }
 }

@@ -47,4 +47,9 @@ public class AuthServiceTest {
                 , () -> authService.generateAccessTokenAndRefreshToken(request)
                 , "사용자 정보가 올바르지 않습니다.");
     }
+
+    @Test
+    public void testDeleteTokenFromUsername() {
+        authService.deleteTokenFromUsername("roopy");
+    }
 }

@@ -42,6 +42,7 @@ jwt:
   #echo 'roopy-spring-boot-security-jwt-with-jpa-and-redis-roopy-spring-boot-security-jwt-with-jpa-and-redis'|base64
   #base64 encode/decode url: https://www.base64encode.org/
   secret: cm9vcHktc3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXdpdGgtanBhLWFuZC1yZWRpcy1yb29weS1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3Qtd2l0aC1qcGEtYW5kLXJlZGlz
+  user-cookie-name: userCookie
   access-token-cookie-name: accessTokenCookie
   refresh-token-cookie-name: refreshTokenCookie
 

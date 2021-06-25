@@ -52,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/token/re-issue/access-token").permitAll()
                 .antMatchers("/token/re-issue/refresh-token").permitAll()
                 .antMatchers("/token/validate/refresh-token").permitAll()
+                .antMatchers("/token/remove/refresh-token").permitAll()
 
                 .antMatchers("/user/register").permitAll()
                 .anyRequest().authenticated();

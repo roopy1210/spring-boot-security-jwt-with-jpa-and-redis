@@ -4,8 +4,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.time.Instant;
-import java.util.Calendar;
 
 @Service
 public class CookieUtil {
@@ -18,11 +16,22 @@ public class CookieUtil {
             // 30분 = 60 * 30
             cookie.setMaxAge(60*2);
         }
-        else {
+        else if ("R".equals(cookieDvcd)) {
             // 3시간 = 60 * 60 * 3
             cookie.setMaxAge(60*5);
         }
+        else {
+            // Token 쿠키 삭제시 삭제 처리를 위하여 10년 설정
+            cookie.setMaxAge(60 * 60 * 24 * 365 * 10);
+        }
         cookie.setPath("/");
+
+        return cookie;
+    }
+
+    public Cookie expireCookie(String cookieName) {
+        Cookie cookie = new Cookie(cookieName, "");
+        cookie.setMaxAge(0);
 
         return cookie;
     }
