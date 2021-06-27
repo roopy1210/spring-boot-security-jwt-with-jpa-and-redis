@@ -109,7 +109,7 @@ public class JwtFilter extends OncePerRequestFilter {
             isValidRefreshToken = validateRefreshToken(refreshTokenCookie.getValue());
         }
         logger.debug("======================================================================================================================");
-        logger.debug("토큰 유효성 체[크");
+        logger.debug("토큰 유효성 체크");
         logger.debug("======================================================================================================================");
         logger.debug("isValidAccessToken({}), isValidRefreshToken({}), uri({})", isValidAccessToken, isValidRefreshToken, requestURI);
         logger.debug("======================================================================================================================");
@@ -135,7 +135,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             // 사용자 쿠키 정보 삭제
             CookieUtil cookieUtil = new CookieUtil();
-            cookieUtil.expireCookie(USER_COOKIE_NAME);
+            httpServletResponse.addCookie(cookieUtil.expireCookie(USER_COOKIE_NAME));
         }
 
         // AccessToken 재발급인 경우
