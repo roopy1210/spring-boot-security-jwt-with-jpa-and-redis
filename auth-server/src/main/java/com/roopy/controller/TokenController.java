@@ -2,7 +2,6 @@ package com.roopy.controller;
 
 import com.roopy.crypto.AES256Cipher;
 import com.roopy.security.jwt.payload.request.LoginRequest;
-import com.roopy.security.jwt.payload.request.TokenRequest;
 import com.roopy.security.jwt.payload.response.TokenResponse;
 import com.roopy.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
